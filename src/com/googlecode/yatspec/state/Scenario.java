@@ -1,16 +1,14 @@
 package com.googlecode.yatspec.state;
 
 import com.googlecode.yatspec.parsing.JavaSource;
-import com.googlecode.yatspec.state.givenwhenthen.CapturedInputAndOutputs;
-import com.googlecode.yatspec.state.givenwhenthen.InterestingGivens;
 import com.googlecode.yatspec.state.givenwhenthen.TestState;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
-public class Scenario {
+public class Scenario implements Serializable {
     private TestState testState = new TestState();
     private final String name;
     private final JavaSource specification;

@@ -3,7 +3,9 @@ package com.googlecode.yatspec.state;
 import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Value;
 
-public class ScenarioTableHeader implements Value<String> {
+import java.io.Serializable;
+
+public class ScenarioTableHeader implements Value<String>, Serializable {
     private final String header;
 
     public ScenarioTableHeader(String header) {

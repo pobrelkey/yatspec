@@ -7,6 +7,7 @@ import com.googlecode.yatspec.parsing.JavaSource;
 import com.googlecode.yatspec.parsing.Text;
 import com.googlecode.yatspec.rendering.ScenarioNameRendererFactory;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import static com.googlecode.yatspec.junit.YatspecAnnotation.methods.yatspecAnno
 import static java.lang.System.lineSeparator;
 
 @SuppressWarnings({"unused"})
-public class TestMethod {
+public class TestMethod implements Serializable {
     private final Class testClass;
     private final Method method;
     private final String methodName;

@@ -1,5 +1,6 @@
 package com.googlecode.yatspec.state.givenwhenthen;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,7 +8,7 @@ import java.util.Map;
 import static java.util.Collections.unmodifiableMap;
 
 @SuppressWarnings({"unused", "unchecked"})
-class NiceMap<T extends NiceMap> {
+class NiceMap<T extends NiceMap> implements Serializable {
     private final Map<String, Object> map = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
 
     public NiceMap(Object... instances) {

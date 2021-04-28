@@ -3,6 +3,7 @@ package com.googlecode.yatspec.state;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.yatspec.parsing.TestParser;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import static com.googlecode.yatspec.parsing.Text.wordify;
 import static java.util.Arrays.asList;
 
 @SuppressWarnings({"unused"})
-public class TestResult implements Result {
+public class TestResult implements Result, Serializable {
     private final Class<?> klass;
     private List<TestMethod> testMethods;
 

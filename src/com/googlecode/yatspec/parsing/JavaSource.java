@@ -2,9 +2,10 @@ package com.googlecode.yatspec.parsing;
 
 import com.googlecode.totallylazy.Value;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class JavaSource implements Value<String> {
+public class JavaSource implements Value<String>, Serializable {
     private static final String COMMA_OR_OPENING_BRACKET = "(\\s*[\\(\\,\"]\\s*)";
     private static final String COMMA_OR_CLOSING_BRACKET = "(\\s*[\\,\\)\"]\\s*)";
     private final String value;
