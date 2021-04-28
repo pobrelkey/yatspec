@@ -12,16 +12,17 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.System.getProperty;
 
 public class SpecRunner extends TableRunner {
     public static final String OUTPUT_DIR = "yatspec.output.dir";
+    public static final String DATA_DIR = "yatspec.data.dir";
+    private static final Set<String> resultsAlreadySeen = new HashSet<>();
+    public static final String SERIALIZED_DATA_EXTENSION = ".ser";
     private final Result testResult;
     private Map<String, Scenario> currentScenario = new HashMap<String, Scenario>();
 
@@ -62,6 +63,56 @@ public class SpecRunner extends TableRunner {
         notifier.addListener(listener);
         super.run(notifier);
         notifier.removeListener(listener);
+
+        List<Result> results;
+        if (dataDirectory() != null) {
+            results = updateTestResults(dataDirectory(), testResult, resultsAlreadySeen);
+        } else {
+            results = Collections.singletonList(testResult);
+        }
+
+        for (Result result : results) {
+            notifyResultListeners(listeners, result);
+        }
+    }
+
+    private static List<Result> updateTestResults(File dataDirectory, Result result, Set<String> resultsAlreadySeen) {
+        ArrayList<Result> results = new ArrayList<>();
+        results.add(result);
+        String canonicalName = result.getTestClass().getCanonicalName();
+        resultsAlreadySeen.add(canonicalName);
+
+        {
+            File tmpFile = new File(dataDirectory, canonicalName + SERIALIZED_DATA_EXTENSION + ".tmp");
+            try (FileOutputStream fos = new FileOutputStream(tmpFile); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                oos.writeObject(result);
+            } catch (IOException e) {
+                throw new RuntimeException("error serializing Yatspec test data: " + e.getStackTrace(), e);
+            }
+            File finalFile = new File(dataDirectory, canonicalName + SERIALIZED_DATA_EXTENSION);
+            tmpFile.renameTo(finalFile);
+        }
+
+        for (File file : dataDirectory.listFiles()) {
+            String fileName = file.getName();
+            if (!fileName.endsWith(SERIALIZED_DATA_EXTENSION)) {
+                continue;
+            }
+            String className = fileName.substring(0, fileName.length() - SERIALIZED_DATA_EXTENSION.length());
+            if (resultsAlreadySeen.contains(className)) {
+                continue;
+            }
+            try (FileInputStream fis = new FileInputStream(file); ObjectInputStream ois = new ObjectInputStream(fis)) {
+                results.add((Result) ois.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException("error deserializing Yatspec test data: " + e.getStackTrace(), e);
+            }
+        }
+
+        return results;
+    }
+
+    private static void notifyResultListeners(WithCustomResultListeners listeners, Result testResult) {
         try {
             for (SpecResultListener resultListener : listeners.getResultListeners()) {
                 resultListener.complete(outputDirectory(), testResult);
@@ -74,6 +125,15 @@ public class SpecRunner extends TableRunner {
 
     public static File outputDirectory() {
         return new File(getProperty(OUTPUT_DIR, getProperty("java.io.tmpdir")));
+    }
+
+    private static File dataDirectory() {
+        String dataDirPath = getProperty(DATA_DIR);
+        if (dataDirPath == null || dataDirPath.length() == 0) {
+            return null;
+        } else {
+            return new File(dataDirPath);
+        }
     }
 
     @Override
