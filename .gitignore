@@ -1,8 +1,10 @@
 *.orig
+.idea
+*.iml
 *.iws
-.idea/workspace.xml
 out
 build/artifacts
 lib/build
 lib/runtime
 lib/optional
+target
